@@ -5,8 +5,6 @@
 #include "rtclock.h"
 #include "mmm.h"
 
-/* globals (anything here would be shared with all threads) */
-
 int main(int argc, char *argv[])
 {
 	double clockstart, clockend;

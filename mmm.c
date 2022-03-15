@@ -16,6 +16,7 @@ void mmm_init()
 
 /**
  * Reset a given matrix to zeroes
+ * @param matrix pointer to a 2D array
  */
 void mmm_reset(double **matrix)
 {
@@ -51,6 +52,7 @@ void *mmm_par(void *args)
  * the sequential run and the parallel run.
  *
  * @return the largest error between two corresponding elements
+ * in the result matrices
  */
 double mmm_verify()
 {
