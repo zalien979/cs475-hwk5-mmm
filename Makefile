@@ -1,5 +1,5 @@
 all: main.c mmm.o rtclock.o
-	gcc -Wall -o mmm main.c mmm.o rtclock.o -lpthread
+	gcc -Wall -o mmm main.c mmm.o rtclock.o -lpthread -lm
 
 mmm.o: mmm.h mmm.c
 	gcc -Wall -c mmm.c

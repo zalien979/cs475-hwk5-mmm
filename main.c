@@ -5,8 +5,7 @@
 #include "rtclock.h"
 #include "mmm.h"
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	double clockstart, clockend;
 	clockstart = rtclock(); // start clocking
 

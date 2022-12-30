@@ -9,8 +9,7 @@
  * Allocate and initialize the matrices on the heap. Populate
  * the input matrices with random integers from 0 to 99
  */
-void mmm_init()
-{
+void mmm_init() {
 	// TODO
 }
 
@@ -18,32 +17,28 @@ void mmm_init()
  * Reset a given matrix to zeroes
  * @param matrix pointer to a 2D array
  */
-void mmm_reset(double **matrix)
-{
+void mmm_reset(double **matrix) {
 	// TODO
 }
 
 /**
  * Free up memory allocated to all matrices
  */
-void mmm_freeup()
-{
+void mmm_freeup() {
 	// TODO
 }
 
 /**
  * Sequential MMM
  */
-void mmm_seq()
-{
+void mmm_seq() {
 	// TODO - code to perform sequential MMM
 }
 
 /**
  * Parallel MMM
  */
-void *mmm_par(void *args)
-{
+void *mmm_par(void *args) {
 	// TODO - code to perform parallel MMM
 }
 
@@ -54,8 +49,7 @@ void *mmm_par(void *args)
  * @return the largest error between two corresponding elements
  * in the result matrices
  */
-double mmm_verify()
-{
+double mmm_verify() {
 	// TODO
 	return -1;
 }
