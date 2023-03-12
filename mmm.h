@@ -5,10 +5,10 @@
 // I would declare the pointers to the matrices here (i.e., extern double **A, **B, **C),
 // as well as the size of the matrices, etc.
 
-void mmm_init();
+void mmm_init(char *args[]);
 void mmm_reset(double **);
 void mmm_freeup();
-void mmm_seq();
+void mmm_seq(int N);
 void *mmm_par(void *args);
 double mmm_verify();
 

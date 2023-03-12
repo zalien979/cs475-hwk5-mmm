@@ -3,14 +3,113 @@
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
+#include <pthread.h>
+#include "rtclock.h"
 #include "mmm.h"
 
 /**
  * Allocate and initialize the matrices on the heap. Populate
  * the input matrices with random integers from 0 to 99
  */
-void mmm_init() {
-	// TODO
+int **array1;
+int **array2;
+int **array3;
+int workcount;
+int wiggle;
+int size;
+void mmm_init(char *args[]) {
+	int N=0;
+	if(*args[1]=='S'){
+		 N=atoi(args[2]);
+	}
+	if(*args[1]=='P'){
+		N=atoi(args[3]);
+	}
+	time_t t;
+	srand((unsigned) time(&t));
+	array3 = (int**) malloc(sizeof(int*) * N);
+	array1 = (int**) malloc(sizeof(int*) * N);
+	array2 = (int**) malloc(sizeof(int*) * N);
+
+   for (int i = 0; i < N; i++) {
+    	array1[i] = (int*) malloc(sizeof(int) * N);
+		array2[i] = (int*) malloc(sizeof(int) * N);
+		array3[i] = (int*) malloc(sizeof(int) * N);
+   }
+  
+
+ 
+   for (int i=0; i<N; i++){
+	for (int j=0; j<N; j++){
+		array1[i][j]=(rand() % 99);
+		array2[i][j]=(rand() % 99);
+		array3[i][j]=0;
+	}
+   }
+   
+   if(*args[1]=='S'){
+		double clockstart, clockend;
+		clockstart = rtclock(); // start clocking
+		mmm_seq(N);
+		clockend = rtclock(); // stop clocking
+		printf("Time taken for sequential: %.6f sec\n", (clockend - clockstart));
+   }
+   else if(*args[1]=='P'){
+		double clockstart, clockend;
+		clockstart = rtclock(); // start clocking
+		int total;
+		size =N;
+		int count=atoi(args[2]);
+		total =size*size;
+		wiggle=total%count;
+		workcount=(total/count)+wiggle;
+		int i=0;
+		int m=0;
+		int n=0;
+		int ***locations;
+		locations=(int***) malloc(sizeof(int**) * count);
+		for(int j=0; j<count; j++){
+			locations[j]=(int**) malloc(sizeof(int*) * workcount);
+				for(int k=0; k<workcount; k++){
+				locations[j][k]=(int*) malloc(sizeof(int) * 2);
+			}
+		}
+		while (i<workcount){
+			for(int j=0; j<count; j++){
+				if (m==size){
+					m=0;
+					n++;
+				}
+				locations[j][i][0]=m;
+				locations[j][i][1]=n;
+				m++;
+			}	
+			i++;
+		}
+		
+		pthread_t *threads = (pthread_t*) malloc(count * sizeof(pthread_t));
+  		for (int i = 0; i < count; i++) {
+    		pthread_create(&threads[i], NULL, mmm_par, (void*)(locations[i]));
+ 		}
+		for (int i = 0; i < count; i++) {
+    		pthread_join(threads[i], NULL);
+  		}
+		clockend = rtclock(); // stop clocking
+		printf("Time taken for Parallel: %.6f sec\n", (clockend - clockstart));
+		printf("Verifying...");
+		printf("dif=%f\n", mmm_verify());
+		double clockstart1, clockend1;
+		clockstart1 = rtclock(); // start clocking
+		mmm_seq(size);
+		clockend1 = rtclock(); // stop clocking
+		printf("Time taken for sequential: %.6f sec\n", (clockend1 - clockstart1));
+		double speeddif=((clockend1-clockstart1)/(clockend-clockstart));
+		printf("process speed up is %.6f times\n",speeddif);
+
+   }
+   	else{
+	printf("error");
+	}
 }
 
 /**
@@ -18,6 +117,7 @@ void mmm_init() {
  * @param matrix pointer to a 2D array
  */
 void mmm_reset(double **matrix) {
+
 	// TODO
 }
 
@@ -31,15 +131,40 @@ void mmm_freeup() {
 /**
  * Sequential MMM
  */
-void mmm_seq() {
+void mmm_seq( int N) {
 	// TODO - code to perform sequential MMM
+	for (int i = 0; i<N; i++) {
+        for (int j = 0; j<N; j++) {
+            for (int k = 0; k<N; k++) {
+                array3[i][j] += array1[i][k] * array2[k][j];
+            }
+        }
+    }
+
 }
 
 /**
  * Parallel MMM
  */
 void *mmm_par(void *args) {
-	// TODO - code to perform parallel MMM
+	int **locals= (int**) args;
+	if (wiggle==0){
+		for(int i=0; i<workcount; i++){
+			for(int j=0; j<size; j++){
+				array3[locals[i][0]][locals[i][1]]+=array1[locals[i][0]][j]*array2[j][locals[i][1]];
+			}
+		}
+	}
+	else{
+		for(int i=0; i<workcount; i++){
+			if (((locals[i][0])||(locals[i][1]))<size){
+				for(int j=0; j<size; j++){
+				array3[locals[i][0]][locals[i][1]]+=array1[locals[i][0]][j]*array2[j][locals[i][1]];
+				}
+			}
+		}
+	}
+	return 0;
 }
 
 /**
@@ -50,6 +175,23 @@ void *mmm_par(void *args) {
  * in the result matrices
  */
 double mmm_verify() {
+	double max=0;
+	double x=0;
+	double dif=0;
+	for (int i = 0; i<size; i++) {
+        for (int j = 0; j<size; j++) {
+            for (int k = 0; k<size; k++) {
+                x += array1[i][k] * array2[k][j];
+            }
+			if (x!=array3[i][j]){
+				dif=abs(x-array3[i][j]);
+				if(dif>max){
+					max=dif;
+				}
+			}
+			x=0;
+        }
+    }
 	// TODO
-	return -1;
+	return max;
 }

@@ -6,15 +6,8 @@
 #include "mmm.h"
 
 int main(int argc, char *argv[]) {
-	double clockstart, clockend;
-	clockstart = rtclock(); // start clocking
-
-	// start: stuff I want to clock
-
-	// end: stuff I want to clock
-
-	clockend = rtclock(); // stop clocking
-	printf("Time taken: %.6f sec\n", (clockend - clockstart));
-
+	for (int i=0; i<4; i++){
+	mmm_init(argv);
+	}
 	return 0;
 }
